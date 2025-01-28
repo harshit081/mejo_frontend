@@ -8,9 +8,19 @@ export default {
   ],
   theme: {
     extend: {
+      animation: {
+        'zoom-gradient': 'zoom-in 5s infinite linear', // Name and duration of the animation
+      },
+      keyframes: {
+        'zoom-in': {
+          '0%': { backgroundSize: '100% 100%' }, // Normal size
+          '50%': { backgroundSize: '150% 150%' }, // Enlarged size
+          '100%': { backgroundSize: '100% 100%' }, // Back to original
+        },
+      },
       backgroundImage:{
-        'hero-title-gradient':'linear-gradient(90deg, #9de8ee ,#656cf3,#fa7c0b,#8d56eb)',
-        "signup-button-gradient": "linear-gradient(90deg, #5ed4ff,#d196ff,#ff8800)",
+        'hero-title-gradient':'linear-gradient(70deg ,#656cf3,#fa7c0b,#8d56eb)',
+        "signup-button-gradient": "linear-gradient(109deg, #98B5FF,#d196ff,#ff8800)",
       },
       colors: {
         background: "var(--background)",
