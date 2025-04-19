@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Cookies from "js-cookie";
+import { AuthNavbar } from './components/AuthNavbar';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -106,86 +107,100 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-            <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg">
-                {error && (
-                    <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
-                        {error}
-                    </div>
-                )}
-                
-                {step === "login" ? (
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <h2 className="text-2xl font-bold text-center">Login</h2>
-                        <input
-                            type="email"
-                            name="email"
-                            placeholder="Email"
-                            className="w-full p-2 border rounded"
-                            value={formData.email}
-                            onChange={handleChange}
-                            disabled={loading}
-                            required
-                        />
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Password"
-                            className="w-full p-2 border rounded"
-                            value={formData.password}
-                            onChange={handleChange}
-                            disabled={loading}
-                            required
-                        />
-                        <div className="flex justify-between items-center">
-                            <Link href="/forgot-password" className="text-blue-500 hover:text-blue-600">
-                                Forgot Password?
-                            </Link>
-                            <Link href="/signup" className="text-blue-500 hover:text-blue-600">
-                                Create Account
-                            </Link>
+        <div className="min-h-screen bg-healing-gradient">
+            <AuthNavbar />
+            <div className="pt-24 px-4 sm:px-6 lg:px-8">
+                <div className="max-w-md mx-auto">
+                    <div className="bg-white rounded-xl shadow-xl overflow-hidden p-8">
+                        <div className="mb-8 text-center">
+                            <h2 className="text-3xl font-bold text-healing-500">Welcome Back</h2>
+                            <p className="text-gray-500 mt-2">Take care of your mind, sign in to continue</p>
                         </div>
-                        <button
-                            type="submit"
-                            className={`w-full p-2 ${loading ? 'bg-gray-400' : 'bg-blue-500'} text-white rounded`}
-                            disabled={loading}
-                        >
-                            {loading ? <div className="loader"></div> : "Login"}
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleVerifyOTP} className="space-y-4">
-                        <h2 className="text-2xl font-bold text-center">Verify Email</h2>
-                        <p className="text-center text-gray-600">
-                            Enter the OTP sent to your email
-                        </p>
-                        <input
-                            type="text"
-                            name="otp"
-                            placeholder="Enter OTP"
-                            className="w-full p-2 border rounded"
-                            value={formData.otp}
-                            onChange={handleChange}
-                            disabled={loading}
-                            required
-                        />
-                        <button
-                            type="submit"
-                            className="w-full p-2 bg-blue-500 text-white rounded"
-                            disabled={loading}
-                        >
-                            {loading ? "Verifying..." : "Verify OTP"}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleSendOTP}
-                            className="w-full p-2 bg-gray-200 text-gray-700 rounded"
-                            disabled={loading}
-                        >
-                            Resend OTP
-                        </button>
-                    </form>
-                )}
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded">
+                                {error}
+                            </div>
+                        )}
+                        {step === "login" ? (
+                            <form onSubmit={handleLogin} className="space-y-6">
+                                <div>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="Email"
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-healing-300"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="Password"
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-healing-300"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <Link href="/forgot-password" className="text-healing-500 hover:text-healing-600">
+                                        Forgot Password?
+                                    </Link>
+                                    <Link href="/signup" className="text-healing-500 hover:text-healing-600">
+                                        Create Account
+                                    </Link>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className={`w-full p-3 rounded-lg text-white font-medium transition-colors
+                                        ${loading ? 'bg-gray-400' : 'bg-healing-500 hover:bg-healing-600'}`}
+                                    disabled={loading}
+                                >
+                                    {loading ? <div className="loader mx-auto"></div> : "Sign In"}
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleVerifyOTP} className="space-y-6">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-bold text-healing-500">Verify Email</h2>
+                                    <p className="text-gray-500 mt-2">Enter the OTP sent to your email</p>
+                                </div>
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="otp"
+                                        placeholder="Enter OTP"
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-healing-300"
+                                        value={formData.otp}
+                                        onChange={handleChange}
+                                        disabled={loading}
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full p-3 bg-healing-500 text-white rounded-lg font-medium transition-colors hover:bg-healing-600"
+                                    disabled={loading}
+                                >
+                                    {loading ? "Verifying..." : "Verify OTP"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleSendOTP}
+                                    className="w-full p-3 bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors hover:bg-gray-300"
+                                    disabled={loading}
+                                >
+                                    Resend OTP
+                                </button>
+                            </form>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

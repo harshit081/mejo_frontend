@@ -1,8 +1,11 @@
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { NavigationLink } from './NavigationLink';
 import { NavigationItem } from '../types';
 import { Button } from './Button';
+import { ProfileMenu } from './ProfileMenu';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 
 const navigationItems: NavigationItem[] = [
   { label: "Home", href: "/" },
@@ -13,24 +16,20 @@ const navigationItems: NavigationItem[] = [
 
 export const Navigation: React.FC = () => {
   const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    setIsAuthenticated(!!token);
+  }, []);
 
   const handleSignIn = () => {
-    console.log("Sign In button clicked"); // Debug log
-    router.replace("/login").then(() => {
-      // console.log("Navigated to /login");
-    }).catch((err) => {
-      console.error("Navigation to /login failed", err);
-    });
-  }
+    router.replace("/login");
+  };
 
   const handleSignUp = () => {
-    console.log("Sign Up button clicked"); // Debug log
-    router.replace("/signup").then(() => {
-      // console.log("Navigated to /signup");
-    }).catch((err) => {
-      console.error("Navigation to /signup failed", err);
-    });
-  }
+    router.replace("/signup");
+  };
 
   return (
     <nav className="navigation flex absolute flex-col items-center px-16 w-full font-medium text-center bg-white bg-opacity-35 max-md:px-5 max-md:max-w-full z-30">
@@ -42,6 +41,7 @@ export const Navigation: React.FC = () => {
             </NavigationLink>
           ))}
         </div>
+        
         <div className="navigation-logo w-[104px] h-[56px] -z-10">
           <Image
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/afde0c8e534c73a3b3de25519a738956e2de66092dacd940229384d6d666eec0?placeholderIfAbsent=true&apiKey=4c3f70633dcc438f977ddb9596975766"
@@ -52,9 +52,20 @@ export const Navigation: React.FC = () => {
             onClick={() => router.push("/")}
           />
         </div>
-        <div className="navigation-buttons flex gap-10 self-stretch my-auto">
-          <Button className="signin-button" variant="secondary" onClick={handleSignIn} tabIndex={0}>Sign In</Button>
-          <Button className="signup-button bg-signup-button-gradient border-2 border-gray-300 animate-zoom-gradient" variant="primary" onClick={handleSignUp} tabIndex={0}>Sign Up</Button>
+
+        <div className="navigation-buttons flex gap-10 self-stretch my-auto items-center">
+          {isAuthenticated ? (
+            <ProfileMenu />
+          ) : (
+            <>
+              <Button className="signin-button" variant="secondary" onClick={handleSignIn} tabIndex={0}>
+                Sign In
+              </Button>
+              <Button className="signup-button bg-signup-button-gradient border-2 border-gray-300 animate-zoom-gradient" variant="primary" onClick={handleSignUp} tabIndex={0}>
+                Sign Up
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </nav>
