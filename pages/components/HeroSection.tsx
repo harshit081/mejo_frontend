@@ -15,6 +15,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ backgroundImage }) => 
         priority
       />
     </div>
+    
     <div className="hero-content relative self-center mt-52 mb-0 ml-16 w-full max-w-[1540px] max-md:mt-10 max-md:mb-2.5 max-md:max-w-full">
       <div className="hero-content-wrapper flex gap-5 max-md:flex-col">
         <div className="hero-title-container flex flex-col w-[44%] max-md:ml-0 max-md:w-full">
