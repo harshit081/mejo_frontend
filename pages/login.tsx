@@ -44,6 +44,7 @@ const Login = () => {
                     await handleSendOTP();
                     setStep("verify");
                 } else {
+                    localStorage.setItem("token", data.token);
                     Cookies.set("token", data.token);
                     router.push("/dashboard");
                 }

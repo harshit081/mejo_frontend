@@ -46,11 +46,16 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         healing: {
-          "100": "#E6F3F3",
-          "200": "#C2E7E8",
-          "300": "#89C4C5",
-          "400": "#5DA3A6",
-          "500": "#387B7E",
+          "50": "#f0f9f9",
+          "100": "#d9f0f1",
+          "200": "#b5e2e4",
+          "300": "#83ccd0",
+          "400": "#4daeb3",
+          "500": "#3a939a",
+          "600": "#337882",
+          "700": "#2f626b",
+          "800": "#2d525a",
+          "900": "#2a464d",
         },
         mindful: {
           "100": "#FFF3E6",
@@ -99,6 +104,9 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        'handwritten': ['Mansalva', 'cursive']
       },
     },
   },
