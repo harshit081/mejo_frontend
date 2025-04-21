@@ -81,7 +81,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ backgroundImage }) => 
             <h1 className="hero-title relative text-9xl leading-[130px] text-zinc-800 max-md:mt-10 max-md:max-w-full max-md:text-4xl max-md:leading-10">
               Attract
               <p className='bg-hero-title-gradient bg-clip-text text-transparent'>
-                New Leads
+                Rio pro
               </p>
               like never before
             </h1>
