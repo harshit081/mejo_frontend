@@ -2,6 +2,7 @@
 
 import { Navigation } from './components/Navigation';
 import { HeroSection } from './components/HeroSection';
+
 const home: React.FC = () => {
   return (
     <div className="flex overflow-hidden flex-col bg-stone-100">
@@ -13,4 +14,4 @@ const home: React.FC = () => {
   );
 };
 
-export default home;
+export default home;  
