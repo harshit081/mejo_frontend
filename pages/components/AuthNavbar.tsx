@@ -9,7 +9,7 @@ export const AuthNavbar = () => {
   const { theme } = useTheme();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white/90 dark:bg-cool-900/90 backdrop-blur-sm shadow-sm z-50 transition-colors duration-200">
+    <nav className="fixed top-0 left-0 right-0 bg-white/90 dark:bg-cool-400/90 backdrop-blur-sm shadow-sm z-50 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo section - updated to use the Logo component */}
