@@ -297,10 +297,10 @@ const Profile = () => {
                                         disabled={!isEditing}
                                         className={inputClasses}
                                     >
-                                        <option value="male">Male</option>
-                                        <option value="female">Female</option>
-                                        <option value="other">Other</option>
-                                        <option value="prefer not to say">Prefer not to say</option>
+                                        <option value="male" className="dark:text-healing-200 dark:bg-healing-900">Male</option>
+                                        <option value="female" className="dark:text-pink-200 dark:bg-pink-900">Female</option>
+                                        <option value="other" className="dark:text-green-200 dark:bg-cool-200">Other</option>
+                                        <option value="prefer not to say" className="dark:text-gray-200 dark:bg-gray-700">Prefer not to say</option>
                                     </select>
                                 </motion.div>
                             </div>
@@ -318,7 +318,10 @@ const Profile = () => {
                                 viewport={{ once: true }}
                             >
                                 {/* Phone field */}
-                                <div className="space-y-1">
+                                <motion.div 
+                                    whileHover={isEditing ? { y: -2 } : {}}
+                                    className="space-y-1 col-span-2"
+                                >
                                     <label className={labelClasses}>
                                         Phone Number
                                     </label>
@@ -326,11 +329,29 @@ const Profile = () => {
                                         type="tel"
                                         name="phoneNumber"
                                         value={profile?.phoneNumber || ''}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            // Only allow digits and limit to 10 characters
+                                            const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                            const event = {
+                                                ...e,
+                                                target: {
+                                                    ...e.target,
+                                                    name: 'phoneNumber',
+                                                    value
+                                                }
+                                            };
+                                            handleChange(event);
+                                        }}
                                         disabled={!isEditing}
                                         className={inputClasses}
+                                        placeholder="10-digit phone number"
+                                        pattern="[0-9]{10}"
+                                        maxLength={10}
                                     />
-                                </div>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Please enter a 10-digit phone number
+                                    </p>
+                                </motion.div>
                             </motion.div>
                         </section>
 

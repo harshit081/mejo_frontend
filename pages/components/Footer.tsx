@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Logo from '../../components/Logo';
 
 export const Footer = () => {
   return (
@@ -7,16 +8,10 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <Image
-              src="/logo.png"
-              alt="Mejo Logo"
-              width={104}
-              height={56}
-              className="mb-4"
-            />
+            <Logo />
             <p className="text-gray-600">Your personal digital journal, reimagined.</p>
           </div>
-          
+
           <div>
             <h4 className="text-sm font-semibold mb-4">Product</h4>
             <ul className="space-y-2">

@@ -15,7 +15,7 @@ const team = [
     bio: "Creating intuitive and beautiful interfaces for digital wellbeing",
   },
   {
-    image: "/images/nigga.jpg",
+    image: "/images/samagra.jpg",
     name: "Samagra Singh",
     role: "Frontend Dev",
     bio: "Frontend developer with a love for clean code and user experience ",
@@ -57,7 +57,7 @@ export const Team = () => {
                   src={member.image}
                   alt={member.name}
                   fill
-                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  className="object-cover hover:scale-105 transition-transform translate duration-300"
                 />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-900">
