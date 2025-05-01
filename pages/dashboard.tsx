@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Cookies from 'js-cookie';
 import { generateTitle } from "@/services/gemini";
 import { fetchWithAuth } from '../lib/apiClient';
+import DeleteConfirmationModal from './components/modals/DeleteConfirmationModal';
 
 interface JournalEntry {
     _id: string;
@@ -78,6 +79,9 @@ const Dashboard = () => {
     const [editedContent, setEditedContent] = useState("");
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [groupedEntries, setGroupedEntries] = useState<any>({});
+    const [menuOpenEntryId, setMenuOpenEntryId] = useState<string | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
 
     // Add media query effect to collapse sidebar on small screens
     useEffect(() => {
@@ -240,6 +244,44 @@ const Dashboard = () => {
         setIsContentEditing(true);
     };
 
+    const handleDeleteJournal = (entryId: string) => {
+        setEntryToDelete(entryId);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!entryToDelete) return;
+        
+        try {
+            const response = await fetch(`http://localhost:5000/api/usertext/${entryToDelete}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${Cookies.get("token")}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete journal entry");
+            }
+            
+            // Remove from state
+            setEntries(prevEntries => prevEntries.filter(entry => entry._id !== entryToDelete));
+            
+            // If the deleted entry was selected, clear selection
+            if (selectedEntry?._id === entryToDelete) {
+                setSelectedEntry(null);
+            }
+            
+            // Close the menu and modal
+            setMenuOpenEntryId(null);
+            setIsDeleteModalOpen(false);
+            setEntryToDelete(null);
+        } catch (error) {
+            console.error("Error deleting journal entry:", error);
+            alert("Failed to delete journal entry. Please try again.");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-healing-50 dark:bg-gray-900">
             <DashboardNav />
@@ -270,7 +312,7 @@ const Dashboard = () => {
                 >
                     <div className="space-y-6">
                         <motion.div
-                            className="bg-healing-50 mt-2 dark:bg-gray-700 border border-healing-100 dark:border-gray-600 rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-lg"
+                            className="bg-healing-50 mt-2 dark:bg-gray-700 border border-healing-100 dark:border-gray-600 rounded-2xl shadow-md p-6 cursor-pointer hover:shadow-lg transform-gpu"
                             whileHover={{ 
                                 scale: 1.02,
                                 transition: { duration: 0.2, ease: "linear" }
@@ -311,24 +353,65 @@ const Dashboard = () => {
                                         {periodEntries.map((entry: JournalEntry) => (
                                             <div
                                                 key={entry._id}
-                                                className={`p-4 rounded-lg cursor-pointer transition-all duration-200 ${
+                                                className={`p-4 rounded-lg cursor-pointer transition-all duration-200 relative ${
                                                     selectedEntry?._id === entry._id
                                                     ? "bg-healing-100 dark:bg-gray-600 shadow-md border-l-4 border-healing-500 dark:border-healing-300"
                                                     : "bg-white dark:bg-gray-700 hover:shadow-md border-l-4 border-transparent hover:border-healing-300 dark:hover:border-healing-400"
                                                 }`}
-                                                onClick={() => {
-                                                    handleEntryClick(entry);
-                                                    if (window.innerWidth < 768) {
-                                                        setIsSidebarCollapsed(true);
-                                                    }
-                                                }}
                                             >
-                                                <h4 className="font-['Mansalva'] font-bold text-healing-600 dark:text-healing-200 mb-2">
-                                                    {entry.title}
-                                                </h4>
-                                                <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 font-['Mansalva']">
-                                                    {entry.content}
-                                                </p>
+                                                <div className="flex justify-between items-start">
+                                                    {/* Content area - takes most space but allows clicking */}
+                                                    <div 
+                                                        className="flex-1 pr-8" 
+                                                        onClick={() => {
+                                                            handleEntryClick(entry);
+                                                            if (window.innerWidth < 768) {
+                                                                setIsSidebarCollapsed(true);
+                                                            }
+                                                        }}
+                                                    >
+                                                        <h4 className="font-['Mansalva'] font-bold text-healing-600 dark:text-healing-200 mb-2">
+                                                            {entry.title}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 font-['Mansalva']">
+                                                            {entry.content}
+                                                        </p>
+                                                    </div>
+                                                    
+                                                    {/* Three-dot menu button */}
+                                                    <div className="relative">
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Prevent triggering the parent's onClick
+                                                                setMenuOpenEntryId(menuOpenEntryId === entry._id ? null : entry._id);
+                                                            }}
+                                                            className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                                            aria-label="Journal options"
+                                                        >
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500 dark:text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
+                                                            </svg>
+                                                        </button>
+                                                        
+                                                        {/* Dropdown menu */}
+                                                        {menuOpenEntryId === entry._id && (
+                                                            <div className="absolute right-0 mt-1 py-1 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-50 border border-gray-200 dark:border-gray-700">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleDeleteJournal(entry._id);
+                                                                    }}
+                                                                    className="flex w-full items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                    </svg>
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -346,8 +429,8 @@ const Dashboard = () => {
                       width: isSidebarCollapsed ? 'clamp(300px, 95%, 1200px)' : 'auto'
                     }}
                     transition={{
-                        duration: 1000,
-                        ease: "easeInOut"
+                        duration: 0.3,
+                        ease: "linear"
                     }}
                 >
                     <AnimatePresence mode="wait">
@@ -358,7 +441,7 @@ const Dashboard = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{
-                                    duration: 0.5,
+                                    duration: 0.3,
                                     ease: "linear"
                                 }}
                             >
@@ -380,7 +463,7 @@ const Dashboard = () => {
                             </motion.div>
                         ) : selectedEntry ? (
                             <motion.div 
-                                className="flex-1"
+                                className="flex-1 transform-gpu"
                                 initial={{ opacity: 0, x: 20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
@@ -534,6 +617,15 @@ const Dashboard = () => {
                     </AnimatePresence>
                 </motion.div>
             </div>
+            <DeleteConfirmationModal 
+                isOpen={isDeleteModalOpen}
+                onClose={() => {
+                    setIsDeleteModalOpen(false);
+                    setEntryToDelete(null);
+                }}
+                onConfirm={confirmDelete}
+                itemName="journal entry"
+            />
         </div>
     );
 };

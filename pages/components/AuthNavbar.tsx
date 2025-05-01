@@ -1,28 +1,20 @@
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 import Link from 'next/link';
 import { ThemeToggle } from '../../components/ThemeToggle';
 import { useTheme } from 'next-themes';
+import Logo from '../../components/Logo';
 
 export const AuthNavbar = () => {
   const router = useRouter();
-  const { theme } = useTheme();  // Use next-themes directly
+  const { theme } = useTheme();
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white/90 dark:bg-cool-900/90 backdrop-blur-sm shadow-sm z-50 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo section */}
+          {/* Logo section - updated to use the Logo component */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="w-[104px] h-[56px] relative">
-              <Image
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/afde0c8e534c73a3b3de25519a738956e2de66092dacd940229384d6d666eec0"
-                alt="Company logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </Link>
+            <Logo linkTo="/" />
           </div>
 
           {/* Navigation Links & Theme Toggle */}
@@ -31,6 +23,7 @@ export const AuthNavbar = () => {
               <ThemeToggle />
             </div>
 
+            {/* Rest of navigation stays the same */}
             <Link
               href="/login"
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all
