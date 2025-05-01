@@ -247,7 +247,7 @@ const Dashboard = () => {
                 <button 
                     onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                     className={`fixed z-40 p-1 rounded-r-lg bg-transparent text-healing-700 dark:text-healing-50
-                        ${isSidebarCollapsed ? 'left-4 top-28 text-2xl' : 'top-28 sm:left-[100px] md:left-[33%] text-xl hover:bg-healing-bg'} animate-standard`}
+                        ${isSidebarCollapsed ? 'left-4 top-28 text-2xl' : 'top-28 sm:left-[100px] md:left-[28%] text-xl hover:bg-healing-bg'} animate-standard`}
                     aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
                     {isSidebarCollapsed ? '☰' : '<'}
@@ -256,10 +256,10 @@ const Dashboard = () => {
                 <motion.div 
                     className={`fixed left-0 top-16 bottom-0 border-r border-gray-200 dark:border-gray-700 p-6 
                         overflow-y-auto bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-30 
-                        ${isSidebarCollapsed ? 'w-0 p-0 opacity-0' : 'w-[35%] sm:w-[300px] opacity-100'}`}
+                        ${isSidebarCollapsed ? 'w-0 p-0 opacity-0' : 'w-[30%] sm:w-[300px] opacity-100'}`}
                     initial={false}
                     animate={{ 
-                        width: isSidebarCollapsed ? 0 : '35%',
+                        width: isSidebarCollapsed ? 0 : '30%',
                         opacity: isSidebarCollapsed ? 0 : 1,
                         x: isSidebarCollapsed ? -300 : 0
                     }}
@@ -329,11 +329,6 @@ const Dashboard = () => {
                                                 <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 font-['Mansalva']">
                                                     {entry.content}
                                                 </p>
-                                                <div className="flex justify-between items-center mt-2">
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {new Date(entry.createdAt).toLocaleDateString()}
-                                                    </span>
-                                                </div>
                                             </div>
                                         ))}
                                     </div>
@@ -345,12 +340,14 @@ const Dashboard = () => {
 
                 <motion.div 
                     className="flex-1 p-6 md:p-8 bg-healing-50/30 dark:bg-gray-900/90"
-                    animate={{ 
-                        marginLeft: isSidebarCollapsed ? '0' : '35%',
+                    animate={{
+                      marginLeft: isSidebarCollapsed ? 'auto' : '30%',
+                      marginRight: isSidebarCollapsed ? 'auto' : '0',
+                      width: isSidebarCollapsed ? 'clamp(300px, 95%, 1200px)' : 'auto'
                     }}
                     transition={{
-                        duration: 0.3,
-                        ease: "linear"
+                        duration: 1000,
+                        ease: "easeInOut"
                     }}
                 >
                     <AnimatePresence mode="wait">
@@ -361,7 +358,7 @@ const Dashboard = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -20 }}
                                 transition={{
-                                    duration: 0.3,
+                                    duration: 0.5,
                                     ease: "linear"
                                 }}
                             >
@@ -478,7 +475,7 @@ const Dashboard = () => {
                                           <textarea
                                             value={editedContent}
                                             onChange={(e) => setEditedContent(e.target.value)}
-                                            className="w-full min-h-[60vh] lg:min-h-[65vh] p-6 rounded-lg border border-gray-200 dark:border-gray-600 
+                                            className="w-full min-h-[58vh] lg:min-h-[60vh] p-6 rounded-lg border border-gray-200 dark:border-gray-600 
                                               bg-white/90 dark:bg-gray-700/90 text-gray-700 dark:text-gray-200 
                                               font-['Mansalva'] text-lg focus:outline-none focus:ring-2 focus:ring-healing-300"
                                             style={{ lineHeight: '1.8' }}
