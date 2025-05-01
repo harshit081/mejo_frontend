@@ -16,7 +16,7 @@ export const NavigationLink: React.FC<NavigationLinkProps> = ({
   
   const handleClick = (e: React.MouseEvent) => {
     // Check if it's a hash link on the current page
-    if (href.startsWith('/#') && router.pathname === '/') {
+    if (href.startsWith('/#') && router.pathname === '/home') {
       e.preventDefault();
       
       // Extract the element id from the hash

@@ -11,7 +11,6 @@ import Logo from '../../components/Logo';
 const navigationItems: NavigationItem[] = [
   { label: "Home", href: "/" },
   { label: "Features", href: "/#features" }, // Changed to hash link
-  { label: "Blog", href: "/blog" },
   { label: "Team", href: "/team" }
 ];
 

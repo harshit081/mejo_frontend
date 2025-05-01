@@ -1,3 +1,4 @@
+
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -27,8 +28,8 @@ const features = [
 
 export const Features = () => {
   return (
-    <section className="relative min-h-screen overflow-hidden">
-      <div 
+    <section id="features" className="relative min-h-screen overflow-hidden scroll-mt-24">
+      <div
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url("/images/background.svg")',
