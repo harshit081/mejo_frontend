@@ -6,6 +6,7 @@ import { Button } from './Button';
 import { ProfileMenu } from './ProfileMenu';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import Logo from '../../components/Logo';
 
 const navigationItems: NavigationItem[] = [
   { label: "Home", href: "/" },
@@ -41,16 +42,9 @@ export const Navigation: React.FC = () => {
             </NavigationLink>
           ))}
         </div>
-        
-        <div className="navigation-logo w-[104px] h-[56px] -z-10">
-          <Image
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/afde0c8e534c73a3b3de25519a738956e2de66092dacd940229384d6d666eec0?placeholderIfAbsent=true&apiKey=4c3f70633dcc438f977ddb9596975766"
-            alt="Company logo"
-            fill
-            className="object-contain"
-            priority
-            onClick={() => router.push("/")}
-          />
+
+        <div className="navigation-logo w-[104px] h-[56px] -z-10 relative max-md:hidden -left-16">
+          <Logo forceLightMode={true} />
         </div>
 
         <div className="navigation-buttons flex gap-10 self-stretch my-auto items-center">

@@ -4,11 +4,11 @@ import withAuth from './utils/withAuth';
 import AccountLayout from '../components/AccountLayout';
 import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 
 interface UserSettings {
     preferences: {
         emailNotifications: boolean;
-        theme: 'light' | 'dark';
     };
 }
 
@@ -18,11 +18,11 @@ const Settings = () => {
     const [success, setSuccess] = useState<string | null>(null);
     const [settings, setSettings] = useState<UserSettings>({
         preferences: {
-            emailNotifications: true,
-            theme: 'light'
+            emailNotifications: true
         }
     });
 
+    const { theme, setTheme } = useTheme();
     const router = useRouter();
 
     useEffect(() => {
@@ -102,7 +102,7 @@ const Settings = () => {
         }
     };
 
-    const handleChange = (name: string, value: boolean | string) => {
+    const handleChange = (name: string, value: boolean) => {
         setSettings(prev => ({
             preferences: {
                 ...prev.preferences,
@@ -113,18 +113,17 @@ const Settings = () => {
 
     return (
         <AccountLayout>
-            <div className="max-w-2xl">
+            <div className="max-w-2xl p-6">
                 <motion.div 
-                    className="bg-white rounded-2xl shadow-xl p-8"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 transition-colors duration-200"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
                 >
-                    <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
+                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Settings</h1>
                     
                     {error && (
                         <motion.div 
-                            className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg"
+                            className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
@@ -134,7 +133,7 @@ const Settings = () => {
 
                     {success && (
                         <motion.div 
-                            className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg"
+                            className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg"
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                         >
@@ -145,7 +144,7 @@ const Settings = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
-                                <label className="text-sm font-medium text-gray-700">
+                                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Email Notifications
                                 </label>
                                 <label className="relative inline-flex items-center cursor-pointer">
@@ -155,18 +154,18 @@ const Settings = () => {
                                         onChange={(e) => handleChange('emailNotifications', e.target.checked)}
                                         className="sr-only peer"
                                     />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-healing-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-healing-500"></div>
+                                    <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-healing-300 dark:peer-focus:ring-healing-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-healing-500"></div>
                                 </label>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                     Theme
                                 </label>
                                 <select
-                                    value={settings.preferences.theme}
-                                    onChange={(e) => handleChange('theme', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500"
+                                    value={theme}
+                                    onChange={(e) => setTheme(e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-healing-300 dark:focus:ring-healing-700 focus:border-healing-500 dark:focus:border-healing-700"
                                 >
                                     <option value="light">Light</option>
                                     <option value="dark">Dark</option>
@@ -179,7 +178,7 @@ const Settings = () => {
                             disabled={loading}
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            className="w-full px-4 py-2 bg-healing-500 text-white rounded-lg hover:bg-healing-600 transition-colors disabled:bg-gray-400"
+                            className="w-full px-4 py-2 bg-healing-500 text-white rounded-lg hover:bg-healing-600 dark:hover:bg-healing-400 transition-colors disabled:bg-gray-400 dark:disabled:bg-gray-600"
                         >
                             {loading ? <div className="loader mx-auto" /> : 'Save Settings'}
                         </motion.button>
