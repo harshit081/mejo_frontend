@@ -4,6 +4,7 @@ import withAuth from './utils/withAuth';
 import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
 import AccountLayout from '../components/AccountLayout';
+import { useTheme } from 'next-themes';
 
 interface UserProfile {
     _id: string;
@@ -31,6 +32,16 @@ interface UserProfile {
     updatedAt: string;
 }
 
+// Update the input classes
+const inputClasses = `w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 
+  bg-background text-foreground focus:ring-2 focus:ring-healing-300 dark:focus:ring-healing-700 
+  focus:border-healing-500 dark:focus:border-healing-700 transition-all duration-200
+  disabled:bg-gray-100 dark:disabled:bg-gray-800 
+  disabled:text-gray-500 dark:disabled:text-gray-400`;
+
+// Update form labels
+const labelClasses = "block text-sm font-medium text-gray-700 dark:text-gray-300";
+
 const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -38,6 +49,7 @@ const Profile = () => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [activeSection, setActiveSection] = useState('basic');
     const router = useRouter();
+    const { setTheme } = useTheme();
 
     const sections = [
         { id: 'basic', icon: '👤', title: 'Basic Information' },
@@ -146,12 +158,35 @@ const Profile = () => {
         }
     };
 
+    const updateProfilePreferences = async (preferences: { theme: 'light' | 'dark' }) => {
+        const token = Cookies.get('token');
+        const response = await fetch('http://localhost:5000/api/profile/preferences', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(preferences)
+        });
+        if (!response.ok) throw new Error('Failed to update preferences');
+        return response.json();
+    };
+
+    const handleThemeChange = async (newTheme: 'light' | 'dark') => {
+        try {
+            await updateProfilePreferences({ theme: newTheme });
+            setTheme(newTheme);
+        } catch (error) {
+            console.error('Failed to update theme:', error);
+        }
+    };
+
     return (
         <AccountLayout>
-            <div className="max-w-4xl">
-                <div className="mb-8 flex space-x-4 overflow-x-auto pb-2">
+            <div className="max-w-4xl p-6 bg-gray-50 dark:bg-gray-900">
+                <div className="mb-8 flex space-x-4 overflow-x-auto p-4 sticky top-0 bg-white dark:bg-gray-900 z-10">
                     {sections.map((section) => (
-                        <button
+                        <button 
                             key={section.id}
                             onClick={() => {
                                 setActiveSection(section.id);
@@ -159,8 +194,8 @@ const Profile = () => {
                             }}
                             className={`px-4 py-2 rounded-lg flex items-center space-x-2 whitespace-nowrap transition-all
                                 ${activeSection === section.id 
-                                    ? 'bg-healing-500 text-white' 
-                                    : 'bg-white text-gray-600 hover:bg-healing-100'}`}
+                                    ? 'bg-healing-500 text-white dark:bg-healing-600' 
+                                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-healing-100 dark:hover:bg-healing-900/30'}`}
                         >
                             <span>{section.icon}</span>
                             <span>{section.title}</span>
@@ -169,25 +204,21 @@ const Profile = () => {
                 </div>
 
                 <motion.div 
-                    className="bg-white rounded-2xl shadow-xl p-8"
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
+                    transition={{ duration: 0.1 }}
                 >
                     {/* Header */}
                     <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800">Profile Settings</h1>
+                        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Profile Settings</h1>
                         <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => setIsEditing(!isEditing)}
-                            className={`px-6 py-3 rounded-lg font-medium ${
-                                isEditing 
-                                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300' 
-                                    : 'bg-healing-500 text-white hover:bg-healing-600'
-                            }`}
+                            className="px-4 py-2 bg-healing-500 text-white rounded-lg hover:bg-healing-600 dark:hover:bg-healing-400 transition-colors"
                         >
-                            {isEditing ? '✕ Cancel' : '✏️ Edit Profile'}
+                            {isEditing ? 'Cancel' : 'Edit Profile'}
                         </motion.button>
                     </div>
 
@@ -195,19 +226,19 @@ const Profile = () => {
                     <form onSubmit={handleSubmit} className="space-y-12">
                         {/* Basic Information */}
                         <section id="basic" className="scroll-mt-24">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
                                 <span className="mr-2">👤</span> Basic Information
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="col-span-2">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                    <label className={labelClasses}>
                                         Email Address
                                     </label>
                                     <input
                                         type="email"
                                         value={profile?.email || ''}
                                         disabled
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 text-gray-500"
+                                        className={inputClasses}
                                     />
                                 </div>
                                 
@@ -215,7 +246,7 @@ const Profile = () => {
                                     whileHover={isEditing ? { y: -2 } : {}}
                                     className="space-y-1"
                                 >
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className={labelClasses}>
                                         First Name
                                     </label>
                                     <input
@@ -224,7 +255,7 @@ const Profile = () => {
                                         value={profile?.firstName || ''}
                                         onChange={handleChange}
                                         disabled={!isEditing}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                        className={inputClasses}
                                     />
                                 </motion.div>
 
@@ -232,7 +263,7 @@ const Profile = () => {
                                     whileHover={isEditing ? { y: -2 } : {}}
                                     className="space-y-1"
                                 >
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className={labelClasses}>
                                         Last Name
                                     </label>
                                     <input
@@ -241,30 +272,30 @@ const Profile = () => {
                                         value={profile?.lastName || ''}
                                         onChange={handleChange}
                                         disabled={!isEditing}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                        className={inputClasses}
                                     />
                                 </motion.div>
 
                                 <motion.div whileHover={isEditing ? { y: -2 } : {}}>
-                                    <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
+                                    <label className={labelClasses}>Date of Birth</label>
                                     <input
                                         type="date"
                                         name="dateOfBirth"
                                         value={profile?.dateOfBirth ? new Date(profile.dateOfBirth).toISOString().split('T')[0] : ''}
                                         onChange={handleChange}
                                         disabled={!isEditing}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500"
+                                        className={inputClasses}
                                     />
                                 </motion.div>
                                 
                                 <motion.div whileHover={isEditing ? { y: -2 } : {}}>
-                                    <label className="block text-sm font-medium text-gray-700">Gender</label>
+                                    <label className={labelClasses}>Gender</label>
                                     <select
                                         name="gender"
                                         value={profile?.gender || ''}
                                         onChange={handleChange}
                                         disabled={!isEditing}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500"
+                                        className={inputClasses}
                                     >
                                         <option value="male">Male</option>
                                         <option value="female">Female</option>
@@ -277,7 +308,7 @@ const Profile = () => {
 
                         {/* Contact Details */}
                         <section id="contact" className="scroll-mt-24">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
                                 <span className="mr-2">📞</span> Contact Details
                             </h2>
                             <motion.div
@@ -288,7 +319,7 @@ const Profile = () => {
                             >
                                 {/* Phone field */}
                                 <div className="space-y-1">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className={labelClasses}>
                                         Phone Number
                                     </label>
                                     <input
@@ -297,7 +328,7 @@ const Profile = () => {
                                         value={profile?.phoneNumber || ''}
                                         onChange={handleChange}
                                         disabled={!isEditing}
-                                        className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                        className={inputClasses}
                                     />
                                 </div>
                             </motion.div>
@@ -305,7 +336,7 @@ const Profile = () => {
 
                         {/* Address Information */}
                         <section id="address" className="scroll-mt-24">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
                                 <span className="mr-2">📍</span> Address Information
                             </h2>
                             <motion.div
@@ -319,7 +350,7 @@ const Profile = () => {
                                         whileHover={isEditing ? { y: -2 } : {}}
                                         className="space-y-1"
                                     >
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className={labelClasses}>
                                             Street Address
                                         </label>
                                         <input
@@ -328,7 +359,7 @@ const Profile = () => {
                                             value={profile?.address?.street || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                            className={inputClasses}
                                             placeholder="Street address"
                                         />
                                     </motion.div>
@@ -337,7 +368,7 @@ const Profile = () => {
                                         whileHover={isEditing ? { y: -2 } : {}}
                                         className="space-y-1"
                                     >
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className={labelClasses}>
                                             City
                                         </label>
                                         <input
@@ -346,7 +377,7 @@ const Profile = () => {
                                             value={profile?.address?.city || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                            className={inputClasses}
                                             placeholder="City"
                                         />
                                     </motion.div>
@@ -355,7 +386,7 @@ const Profile = () => {
                                         whileHover={isEditing ? { y: -2 } : {}}
                                         className="space-y-1"
                                     >
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className={labelClasses}>
                                             State/Province
                                         </label>
                                         <input
@@ -364,7 +395,7 @@ const Profile = () => {
                                             value={profile?.address?.state || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                            className={inputClasses}
                                             placeholder="State or province"
                                         />
                                     </motion.div>
@@ -373,7 +404,7 @@ const Profile = () => {
                                         whileHover={isEditing ? { y: -2 } : {}}
                                         className="space-y-1"
                                     >
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className={labelClasses}>
                                             Country
                                         </label>
                                         <input
@@ -382,7 +413,7 @@ const Profile = () => {
                                             value={profile?.address?.country || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                            className={inputClasses}
                                             placeholder="Country"
                                         />
                                     </motion.div>
@@ -391,7 +422,7 @@ const Profile = () => {
                                         whileHover={isEditing ? { y: -2 } : {}}
                                         className="space-y-1"
                                     >
-                                        <label className="block text-sm font-medium text-gray-700">
+                                        <label className={labelClasses}>
                                             ZIP/Postal Code
                                         </label>
                                         <input
@@ -400,7 +431,7 @@ const Profile = () => {
                                             value={profile?.address?.zipCode || ''}
                                             onChange={handleChange}
                                             disabled={!isEditing}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                            className={inputClasses}
                                             placeholder="ZIP or postal code"
                                         />
                                     </motion.div>
@@ -410,7 +441,7 @@ const Profile = () => {
 
                         {/* Bio Section */}
                         <section id="bio" className="scroll-mt-24">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                            <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4 flex items-center">
                                 <span className="mr-2">✍️</span> Bio
                             </h2>
                             <motion.div
@@ -424,7 +455,7 @@ const Profile = () => {
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                     rows={4}
-                                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-healing-300 focus:border-healing-500 transition-all duration-200"
+                                    className={inputClasses}
                                     placeholder={isEditing ? "Tell us about yourself..." : ""}
                                 />
                             </motion.div>
