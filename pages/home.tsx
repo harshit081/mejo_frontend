@@ -5,6 +5,7 @@ import { HeroSection } from './components/HeroSection';
 import { Features } from './components/Features';
 // import { Team } from './components/Team';
 import { Footer } from './components/Footer';
+// import { About } from './components/About';
 
 const home: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const home: React.FC = () => {
       />
       <Features />
       {/* <Team /> */}
+      {/* <About/> */}
       <Footer />
     </div>
   );

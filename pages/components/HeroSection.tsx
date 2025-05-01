@@ -82,7 +82,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="hero-content relative self-center mt-52 mb-0 ml-16 w-full max-w-[1540px] max-md:mt-10 max-md:mb-2.5 max-md:max-w-full">
         <div className="hero-content-wrapper flex gap-5 max-md:flex-col">
           <div className="hero-title-container flex flex-col w-[44%] max-md:ml-0 max-md:w-full">
-{/* Title with gradient */}
+            {/* Title with gradient */}
             <h1 className="hero-title relative bg-hero-title-gradient bg-clip-text text-transparent text-9xl font-medium mb-5 max-md:mt-10 max-md:max-w-full max-md:text-5xl">
               Mejo
             </h1>
@@ -97,7 +97,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               secure, personalized space. Whether it's a daily diary, creative
               notes, or life reflections — Mejo is your trusted companion.
             </p>
-            <button 
+            <button
               className="mt-8 px-8 py-4 bg-gradient-to-r from-[#fcd34d] via-[#fb7185] to-[#a78bfa]
               text-white text-lg font-medium rounded-sm
               shadow-lg hover:shadow-[#bf94e4]/30 
@@ -105,7 +105,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               transition-all duration-300 ease-out"
             >
               Start journaling today — your thoughts deserve a home.
-            </button>        
+            </button>
           </div>
 
           <div className="hero-image-container flex flex-col ml-5 w-[56%] max-md:ml-0 max-md:w-full">
