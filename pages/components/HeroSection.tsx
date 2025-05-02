@@ -97,7 +97,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               secure, personalized space. Whether it's a daily diary, creative
               notes, or life reflections — Mejo is your trusted companion.
             </p>
-            <button 
+            <button
               className="mt-8 px-8 py-4 bg-gradient-to-r from-[#fcd34d] via-[#fb7185] to-[#a78bfa]
               text-white text-lg font-medium rounded-sm
               shadow-lg hover:shadow-[#bf94e4]/30 
@@ -105,7 +105,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               transition-all duration-300 ease-out"
             >
               Start journaling today — your thoughts deserve a home.
-            </button>        
+            </button>
           </div>
 
           <div className="hero-image-container flex flex-col ml-5 w-[56%] max-md:ml-0 max-md:w-full">
