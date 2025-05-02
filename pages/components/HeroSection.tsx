@@ -83,7 +83,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="hero-content-wrapper flex gap-5 max-md:flex-col">
           <div className="hero-title-container flex flex-col w-[44%] max-md:ml-0 max-md:w-full">
 {/* Title with gradient */}
-            <h1 className="hero-title relative bg-hero-title-gradient bg-clip-text text-transparent text-9xl font-medium mb-5 max-md:mt-10 max-md:max-w-full max-md:text-5xl">
+            <h1 className="hero-title relative bg-hero-title-gradient bg-clip-text text-transparent font-bold text-9xl mb-5 max-md:mt-10 max-md:max-w-full max-md:text-5xl pb-7">
               Mejo
             </h1>
 
