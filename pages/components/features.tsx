@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -8,42 +7,43 @@ const features = [
     title: "Beautiful Interface",
     description:
       "A clean, distraction-free writing environment designed for focus and creativity",
-    image: "/images/features/interface.jpg"
+    image: "/images/feat.jpg", // Updated image path
   },
   {
     icon: "🔒",
     title: "Secure & Private",
     description:
       "Your thoughts are encrypted and protected. Only you can access your journal",
-    // image: "/images/features/security.jpg"
+    image: "/images/enc.jpg"
   },
   {
     icon: "🎯",
-    title: "Smart Organization",
+    title: "AI powered Insights",
     description:
-      "Easily organize entries with tags, search, and AI-powered insights",
-    // image: "/images/features/organization.jpg"
+      "Upcoming",
+    image: "/images/chimgandi.webp"
   },
 ];
 
 export const Features = () => {
   return (
-    <section id="features" className="relative min-h-screen overflow-hidden scroll-mt-24">
+    <section
+      id="features"
+      className="relative min-h-screen overflow-hidden scroll-mt-24"
+    >
       <div
         className="absolute inset-0 z-0"
         style={{
           backgroundImage: 'url("/images/background.svg")',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'bottom',
-          backgroundSize: 'cover'
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "bottom",
+          backgroundSize: "cover",
         }}
       />
       <div className="relative z-10 py-24 flex items-center justify-center min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-5xl font-bold text-gray-900">
-              Features
-            </h2>
+            <h2 className="text-5xl font-bold text-gray-900">Features</h2>
             <p className="mt-4 text-xl text-gray-600">
               Everything you need to journal mindfully
             </p>
@@ -59,17 +59,19 @@ export const Features = () => {
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.2 }}
               >
-                <div className="relative w-full h-48 mb-6 rounded-lg overflow-hidden">
-                  {/* <Image
-                    src={feature.image}
+                <div className="relative w-full h-48 mb-6 rounded-2xl overflow-hidden"> {/* Updated rounded corners */}
+                  <Image
+                    src={feature.image || "/images/default.jpg"}
                     alt={feature.title}
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-300"
+                    className="object-cover hover:scale-105 transition-transform duration-300 rounded-2xl" /* Added rounded corners */
                     priority={index === 0}
-                  /> */}
+                  />
                 </div>
                 <span className="text-4xl mb-4 block">{feature.icon}</span>
-                <h3 className="text-xl font-bold mb-2 text-gray-900">{feature.title}</h3>
+                <h3 className="text-xl font-bold mb-2 text-gray-900">
+                  {feature.title}
+                </h3>
                 <p className="text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
