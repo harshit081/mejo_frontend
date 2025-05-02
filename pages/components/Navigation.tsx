@@ -10,9 +10,8 @@ import Logo from '../../components/Logo';
 
 const navigationItems: NavigationItem[] = [
   { label: "Home", href: "/" },
-  { label: "Features", href: "/features" },
-  { label: "Blog", href: "/blog" },
-  { label: "About Us", href: "/about" }
+  { label: "Features", href: "/#features" }, // Changed to hash link
+  { label: "Team", href: "/team" }
 ];
 
 export const Navigation: React.FC = () => {

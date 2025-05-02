@@ -28,7 +28,7 @@ export const ProfileMenu: React.FC = () => {
       >
         <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300">
           <Image
-            src="/images/default-avatar.jpg"
+            src="/images/default-avatar.png"
             alt="Profile"
             width={40}
             height={40}

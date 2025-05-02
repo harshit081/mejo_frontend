@@ -335,3 +335,7 @@ html {
     @apply border-healing-300 dark:border-healing-500;
   }
 }
+/* Smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}

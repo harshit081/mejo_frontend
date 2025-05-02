@@ -289,7 +289,7 @@ const Dashboard = () => {
                 <button 
                     onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
                     className={`fixed z-40 p-1 rounded-r-lg bg-transparent text-healing-700 dark:text-healing-50
-                        ${isSidebarCollapsed ? 'left-4 top-28 text-2xl' : 'top-28 sm:left-[100px] md:left-[28%] text-xl hover:bg-healing-bg'} animate-standard`}
+                        ${isSidebarCollapsed ? 'left-4 top-28 text-2xl' : 'top-28 sm:left-[100px] md:left-[28.5%] text-xl hover:bg-healing-bg'} animate-standard`}
                     aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
                     {isSidebarCollapsed ? '☰' : '<'}
