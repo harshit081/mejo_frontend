@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import AccountLayout from '../components/AccountLayout';
 import { useTheme } from 'next-themes';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface UserProfile {
     _id: string;
     userId: string;
@@ -72,7 +74,7 @@ const Profile = () => {
 
             console.log("Fetching profile with token:", token); // Debug log
 
-            const response = await fetch('http://localhost:5000/api/profile', {
+            const response = await fetch(`${apiUrl}/api/profile`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -104,7 +106,7 @@ const Profile = () => {
 
         try {
             const token = Cookies.get('token');
-            const response = await fetch('http://localhost:5000/api/profile', {
+            const response = await fetch(`${apiUrl}/api/profile`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,7 +162,7 @@ const Profile = () => {
 
     const updateProfilePreferences = async (preferences: { theme: 'light' | 'dark' }) => {
         const token = Cookies.get('token');
-        const response = await fetch('http://localhost:5000/api/profile/preferences', {
+        const response = await fetch(`${apiUrl}/api/profile/preferences`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

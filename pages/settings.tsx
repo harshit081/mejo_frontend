@@ -6,6 +6,8 @@ import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface UserSettings {
     preferences: {
         emailNotifications: boolean;
@@ -36,7 +38,7 @@ const Settings = () => {
                 throw new Error('No authentication token found');
             }
 
-            const response = await fetch('http://localhost:5000/api/profile', {
+            const response = await fetch(`${apiUrl}/api/profile`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/json'
@@ -72,7 +74,7 @@ const Settings = () => {
 
             console.log("Updating settings:", settings); // Debug log
 
-            const response = await fetch('http://localhost:5000/api/profile', {
+            const response = await fetch(`${apiUrl}/api/profile`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

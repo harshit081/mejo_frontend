@@ -9,12 +9,11 @@ import { useTheme } from 'next-themes';
 const Login = () => {
     const [formData, setFormData] = useState({
         email: "",
-        password: "",
-        otp: ""
+        password: ""
     });
     const [loading, setLoading] = useState(false);
-    const [step, setStep] = useState<"login" | "verify">("login");
     const [error, setError] = useState<string | null>(null);
+    const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
     const router = useRouter();
     const { setTheme } = useTheme();
 
@@ -24,6 +23,7 @@ const Login = () => {
             [e.target.name]: e.target.value
         });
         setError(null);
+        setUnverifiedEmail(null);
     };
 
     const handleLogin = async (e: React.FormEvent) => {
@@ -32,7 +32,9 @@ const Login = () => {
         setError(null);
 
         try {
-            const res = await fetch("http://localhost:5000/api/auth/login", {
+            // Use the environment variable for API URL
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+            const res = await fetch(`${apiUrl}/api/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 
@@ -44,8 +46,8 @@ const Login = () => {
 
             if (res.ok) {
                 if (!data.user.isVerified) {
-                    await handleSendOTP();
-                    setStep("verify");
+                    localStorage.setItem('unverifiedEmail', formData.email);
+                    router.push(`/verify?email=${encodeURIComponent(formData.email)}`);
                 } else {
                     localStorage.setItem("token", data.token);
                     Cookies.set("token", data.token);
@@ -57,61 +59,19 @@ const Login = () => {
                     router.push("/dashboard");
                 }
             } else {
-                if (data.message === 'Please verify your email address before logging in') {
-                    await handleSendOTP();
-                    setStep("verify");
+                if (data.type === 'unverified_email') {
+                    setError(`Please verify your email address before logging in.`);
+                    setUnverifiedEmail(data.email || formData.email);
+                    localStorage.setItem('unverifiedEmail', data.email || formData.email);
                 } else {
                     setError(data.message);
+                    setUnverifiedEmail(null);
                 }
             }
         } catch (error) {
             setError("Network error. Please check your connection.");
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleVerifyOTP = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        try {
-            const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ 
-                    email: formData.email, 
-                    otp: formData.otp 
-                }),
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                alert("Email verified successfully!");
-                setStep("login");
-            } else {
-                setError(data.message);
-            }
-        } catch (error) {
-            setError("OTP verification failed. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSendOTP = async () => {
-        try {
-            const res = await fetch("http://localhost:5000/api/auth/generate-otp", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: formData.email }),
-            });
-            if (!res.ok) {
-                throw new Error("Failed to send OTP");
-            }
-        } catch (error) {
-            setError("Failed to send OTP. Please try again.");
         }
     };
 
@@ -128,93 +88,85 @@ const Login = () => {
                             </div>
                             {error && (
                                 <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 text-red-700 dark:text-red-400 rounded">
-                                    {error}
+                                    <div className="mb-2">{error}</div>
+                                    {unverifiedEmail && (
+                                        <div className="mt-3">
+                                            <Link 
+                                                href={`/verify?email=${encodeURIComponent(unverifiedEmail)}`}
+                                                className="inline-flex items-center px-3 py-1 bg-teal-500 hover:bg-teal-600 text-white text-sm rounded-md transition-colors"
+                                            >
+                                                Verify Email Now
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             )}
-                            {step === "login" ? (
-                                <form onSubmit={handleLogin} className="space-y-6">
-                                    <div>
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="Email"
-                                            className="w-full p-3 border border-teal-100 dark:border-teal-600 rounded-lg 
-                                            bg-white dark:bg-teal-900/40 text-gray-900 dark:text-teal-50
-                                            focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-100"
-                                            value={formData.email}
-                                            onChange={handleChange}
-                                            disabled={loading}
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="password"
-                                            name="password"
-                                            placeholder="Password"
-                                            className="w-full p-3 border border-teal-100 dark:border-teal-600 rounded-lg 
-                                            bg-white dark:bg-teal-900/40 text-gray-900 dark:text-teal-50
-                                            focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-100"
-                                            value={formData.password}
-                                            onChange={handleChange}
-                                            disabled={loading}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm">
-                                        {/* <Link href="/forgot-password" className="text-teal-500 hover:text-teal-600 dark:text-teal-100 dark:hover:text-teal-50">
-                                            Forgot Password?
-                                        </Link> */}
-                                        <Link href="/signup" className="text-teal-500 hover:text-teal-600 dark:text-teal-100 dark:hover:text-teal-50">
-                                            Create Account
-                                        </Link>
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className={`w-full p-3 rounded-lg text-white font-medium transition-colors
-                                            ${loading ? 'bg-gray-400 dark:bg-gray-600' : 'bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500'}`}
+                            <form onSubmit={handleLogin} className="space-y-6">
+                                <div>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="Email"
+                                        className="w-full p-3 border border-teal-100 dark:border-teal-600 rounded-lg 
+                                        bg-white dark:bg-teal-900/40 text-gray-900 dark:text-teal-50
+                                        focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-100"
+                                        value={formData.email}
+                                        onChange={handleChange}
                                         disabled={loading}
-                                    >
-                                        {loading ? <div className="loader mx-auto"></div> : "Sign In"}
-                                    </button>
-                                </form>
-                            ) : (
-                                <form onSubmit={handleVerifyOTP} className="space-y-6">
-                                    <div className="text-center">
-                                        <h2 className="text-2xl font-bold text-teal-500 dark:text-teal-100">Verify Email</h2>
-                                        <p className="text-gray-500 dark:text-teal-50/70 mt-2">Enter the OTP sent to your email</p>
-                                    </div>
-                                    <div>
-                                        <input
-                                            type="text"
-                                            name="otp"
-                                            placeholder="Enter OTP"
-                                            className="w-full p-3 border border-teal-100 dark:border-teal-600 rounded-lg 
-                                            bg-white dark:bg-teal-900/40 text-gray-900 dark:text-teal-50
-                                            focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-100"
-                                            value={formData.otp}
-                                            onChange={handleChange}
-                                            disabled={loading}
-                                            required
-                                        />
-                                    </div>
-                                    <button
-                                        type="submit"
-                                        className="w-full p-3 bg-teal-500 text-white rounded-lg font-medium transition-colors hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="Password"
+                                        className="w-full p-3 border border-teal-100 dark:border-teal-600 rounded-lg 
+                                        bg-white dark:bg-teal-900/40 text-gray-900 dark:text-teal-50
+                                        focus:outline-none focus:ring-2 focus:ring-teal-500 dark:focus:ring-teal-100"
+                                        value={formData.password}
+                                        onChange={handleChange}
                                         disabled={loading}
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <Link href="/signup" className="text-teal-500 hover:text-teal-600 dark:text-teal-100 dark:hover:text-teal-50">
+                                        Create Account
+                                    </Link>
+                                    <Link href="/verify" className="text-teal-500 hover:text-teal-600 dark:text-teal-100 dark:hover:text-teal-50">
+                                        Verify Email
+                                    </Link>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className={`w-full p-3 rounded-lg text-white font-medium transition-colors
+                                        ${loading ? 'bg-gray-400 dark:bg-gray-600' : 'bg-teal-500 hover:bg-teal-600 dark:bg-teal-600 dark:hover:bg-teal-500'}`}
+                                    disabled={loading}
+                                >
+                                    {loading ? <div className="loader mx-auto"></div> : "Sign In"}
+                                </button>
+                                
+                                {/* Forgot Password Link */}
+                                <div className="text-center space-y-2">
+                                    <Link href="/forgot-password" className="text-teal-600 dark:text-teal-300 hover:text-teal-700 dark:hover:text-teal-200 text-sm font-medium transition-colors">
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+                                
+                                {/* Help for unverified users */}
+                                <div className="text-center border-t border-teal-200 dark:border-teal-700 pt-4 mt-6">
+                                    <p className="text-sm text-gray-600 dark:text-teal-200 mb-2">
+                                        Having trouble signing in?
+                                    </p>
+                                    <Link 
+                                        href="/verify" 
+                                        className="text-teal-600 dark:text-teal-300 hover:text-teal-700 dark:hover:text-teal-200 text-sm font-medium transition-colors"
                                     >
-                                        {loading ? "Verifying..." : "Verify OTP"}
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleSendOTP}
-                                        className="w-full p-3 bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors hover:bg-gray-300 dark:bg-teal-900/40 dark:text-teal-50 dark:hover:bg-teal-900"
-                                        disabled={loading}
-                                    >
-                                        Resend OTP
-                                    </button>
-                                </form>
-                            )}
+                                        Verify your email address
+                                    </Link>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

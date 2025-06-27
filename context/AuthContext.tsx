@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { useRouter } from "next/router";
 import axios from "axios";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 interface User {
     email: string;
 }
@@ -28,7 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         try {
-            const res = await axios.post("http://localhost:5000/api/login", { email, password });
+            const res = await axios.post(`${apiUrl}/api/login`, { email, password });
             setUser(res.data.user);
             localStorage.setItem("user", JSON.stringify(res.data.user));
             router.push("/dashboard");

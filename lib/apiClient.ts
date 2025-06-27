@@ -7,6 +7,12 @@ export const fetchWithAuth = async (
     options: RequestInit = {},
     router: NextRouter
 ): Promise<Response> => {
+    // Make sure URLs without http:// prefix use the API URL
+    if (!url.startsWith('http')) {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        url = `${apiUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+    }
+
     const token = Cookies.get('token');
 
     // Check token before making request

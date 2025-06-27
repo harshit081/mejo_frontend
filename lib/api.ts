@@ -1,5 +1,6 @@
 import { handleTokenExpiration } from './tokenUtils';
 import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
 
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
     const router = useRouter();

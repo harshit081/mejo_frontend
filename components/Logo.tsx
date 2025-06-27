@@ -42,6 +42,7 @@ const Logo: React.FC<LogoProps> = ({
         src={logoSrc}
         alt="Mejo logo"
         fill
+        sizes="(max-width: 768px) 100vw, 104px" // Added sizes prop
         className="object-contain"
         priority
       />
