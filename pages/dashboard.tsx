@@ -72,7 +72,6 @@ const Dashboard = () => {
     const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(null);
     const [isEditingTitle, setIsEditingTitle] = useState(false);
     const [editedTitle, setEditedTitle] = useState("");
-    const [isGeneratingTitle, setIsGeneratingTitle] = useState(false);
     const [isSavingTitle, setIsSavingTitle] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isContentEditing, setIsContentEditing] = useState(false);
@@ -141,6 +140,7 @@ const Dashboard = () => {
 
         try {
             setIsSavingTitle(true);
+            const updatedTitle = await generateTitle(selectedEntry.content, editedTitle);
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/usertext/${selectedEntry._id}`, {
                 method: "PUT",
                 headers: {
@@ -148,7 +148,7 @@ const Dashboard = () => {
                     "Authorization": `Bearer ${Cookies.get("token")}`
                 },
                 body: JSON.stringify({
-                    title: editedTitle,
+                    title: updatedTitle,
                     content: selectedEntry.content,
                     tags: selectedEntry.tags || []
                 })
@@ -168,6 +168,7 @@ const Dashboard = () => {
                 )
             );
             
+            setEditedTitle(updatedTitle);
             setIsEditingTitle(false);
         } catch (error) {
             console.error("Error updating title:", error);
@@ -183,21 +184,6 @@ const Dashboard = () => {
         
         if (!isEditingButton) {
             handleTitleEdit();
-        }
-    };
-
-    const handleGenerateTitle = async () => {
-        if (!selectedEntry) return;
-        
-        try {
-            setIsGeneratingTitle(true);
-            const generatedTitle = await generateTitle(selectedEntry.content);
-            setEditedTitle(generatedTitle);
-        } catch (error) {
-            console.error('Error generating title:', error);
-            alert('Failed to generate title. Please try again.');
-        } finally {
-            setIsGeneratingTitle(false);
         }
     };
 
@@ -485,25 +471,6 @@ const Dashboard = () => {
                                                     onBlur={handleTitleBlur}
                                                     onKeyPress={(e) => e.key === 'Enter' && handleTitleEdit()}
                                                 />
-                                                <button
-                                                    onClick={handleGenerateTitle}
-                                                    className="p-1 rounded-md bg-transparent text-healing-700 dark:text-healing-50 flex items-center gap-1 hover:bg-healing-200 dark:hover:bg-healing-900 transition-colors"
-                                                    disabled={isGeneratingTitle}
-                                                    data-title-edit="true"
-                                                >
-                                                    {isGeneratingTitle ? (
-                                                        <div className="flex items-center">
-                                                            <svg className="animate-spin h-4 w-4 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                            </svg>
-                                                        </div>
-                                                    ) : (
-                                                        <>
-                                                            <span>✨</span> 
-                                                        </>
-                                                    )}
-                                                </button>
                                                 <button
                                                     onClick={handleTitleEdit}
                                                     className="p-1 text-healing-600 dark:text-healing-fg hover:text-healing-800 dark:hover:text-healing-200 transition-colors dark:hover:bg-healing-900 hover:bg-healing-200"

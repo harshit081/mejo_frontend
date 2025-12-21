@@ -22,12 +22,17 @@ export const JournalForm: React.FC<JournalFormProps> = ({
     isEditing = false 
 }) => {
     const [journalText, setJournalText] = useState("");
+    const [journalTitle, setJournalTitle] = useState("");
     const [loading, setLoading] = useState(false);
     
     // Set initial content if editing
     useEffect(() => {
         if (initialEntry) {
             setJournalText(initialEntry.content);
+            setJournalTitle(initialEntry.title);
+        } else {
+            setJournalText("");
+            setJournalTitle("");
         }
     }, [initialEntry]);
 
@@ -36,6 +41,8 @@ export const JournalForm: React.FC<JournalFormProps> = ({
         setLoading(true);
         
         try {
+            const resolvedTitle = await generateTitle(journalText, journalTitle);
+
             if (isEditing && initialEntry) {
                 // Update existing entry
                 const response = await fetch(`http://localhost:5000/api/usertext/${initialEntry._id}`, {
@@ -46,7 +53,7 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                     },
                     body: JSON.stringify({
                         content: journalText,
-                        title: initialEntry.title, // Keep the original title
+                        title: resolvedTitle,
                         tags: initialEntry.tags || ["journal"]
                     })
                 });
@@ -54,10 +61,6 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                 if (!response.ok) throw new Error("Failed to update journal");
             } else {
                 // Create new entry
-                // Generate title first
-                const generatedTitle = await generateTitle(journalText);
-                
-                // Save entry with generated title
                 const response = await fetch("http://localhost:5000/api/usertext", {
                     method: "POST",
                     headers: {
@@ -66,7 +69,7 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                     },
                     body: JSON.stringify({
                         content: journalText,
-                        title: generatedTitle,
+                        title: resolvedTitle,
                         tags: ["journal"]
                     })
                 });
@@ -75,6 +78,7 @@ export const JournalForm: React.FC<JournalFormProps> = ({
             }
             
             setJournalText("");
+            setJournalTitle("");
             onEntryAdded();
         } catch (error) {
             console.error("Error with journal entry:", error);
@@ -98,6 +102,16 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    <input
+                        type="text"
+                        value={journalTitle}
+                        onChange={(e) => setJournalTitle(e.target.value)}
+                        placeholder="Add a title (optional)"
+                        className="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 
+                        bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100
+                        focus:ring-2 focus:ring-healing-300 focus:border-healing-500"
+                        disabled={loading}
+                    />
                     <textarea
                         value={journalText}
                         onChange={(e) => setJournalText(e.target.value)}
