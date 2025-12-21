@@ -29,8 +29,17 @@ export const Features = () => {
   return (
     <section
       id="features"
-      className="relative min-h-screen overflow-hidden scroll-mt-24 bg-gradient-to-b from-stone-100 to-white"
+      className="relative min-h-screen overflow-hidden scroll-mt-24"
     >
+      <div
+        className="absolute inset-0 z-0"
+        style={{
+          backgroundImage: 'url("/images/background.svg")',
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "bottom",
+          backgroundSize: "cover",
+        }}
+      />
       <div className="relative z-10 py-24 flex items-center justify-center min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
@@ -47,19 +56,16 @@ export const Features = () => {
                 className="p-6 bg-white/60 backdrop-blur-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:bg-white/70 border border-white/20 overflow-hidden"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ delay: index * 0.1 }} // Reduced delay
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.2 }}
               >
-                <div className="relative w-full h-40 mb-6 rounded-2xl overflow-hidden"> {/* Reduced height */}
+                <div className="relative w-full h-48 mb-6 rounded-2xl overflow-hidden"> {/* Updated rounded corners */}
                   <Image
                     src={feature.image || "/images/default.jpg"}
                     alt={feature.title}
                     fill
-                    className="object-cover hover:scale-105 transition-transform duration-300 rounded-2xl"
+                    className="object-cover hover:scale-105 transition-transform duration-300 rounded-2xl" /* Added rounded corners */
                     priority={index === 0}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    quality={80} // Reduced quality
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
                 <span className="text-4xl mb-4 block">{feature.icon}</span>
