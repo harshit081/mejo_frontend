@@ -49,15 +49,18 @@ export const Team = () => {
               className="bg-white/50 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.2 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: index * 0.1 }} // Reduced delay
             >
-              <div className="relative w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden">
+              <div className="relative w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden"> {/* Reduced size */}
                 <Image
                   src={member.image}
                   alt={member.name}
                   fill
-                  className="object-cover hover:scale-105 transition-transform translate duration-300"
+                  className="object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                  quality={85}
+                  sizes="(max-width: 768px) 128px, 128px"
                 />
               </div>
               <h3 className="text-2xl font-bold mb-2 text-gray-900">

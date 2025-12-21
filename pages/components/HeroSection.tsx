@@ -9,6 +9,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   backgroundImage,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<Set<number>>(new Set([0]));
 
   const images = [
     { src: "/images/dog.jpg", alt: "Dog Portrait" },
@@ -18,8 +19,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 5000); // Increased interval to 5s for smoother transitions
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % images.length;
+        // Preload next image
+        setImagesLoaded(prev => new Set([...prev, next]));
+        return next;
+      });
+    }, 8000); // Increased to 8s for better performance
 
     return () => clearInterval(timer);
   }, []);
@@ -27,7 +33,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const getImageStyle = (index: number) => {
     const position = (index - currentIndex + images.length) % images.length;
     const baseStyle = {
-      transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+      transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)", // Slower transition
       position: "absolute" as const,
     };
 
@@ -35,21 +41,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     if (position === 0)
       return {
         ...baseStyle,
-        width: "16rem",
-        height: "32rem",
-        left: "calc(50% - 24rem)", // Position relative to center
+        width: "12rem", // Reduced size
+        height: "24rem", // Reduced size
+        left: "calc(50% - 20rem)",
         zIndex: 0,
-        scale: 0.85,
-        opacity: 0.7,
+        scale: 0.8,
+        opacity: 0.6,
       };
 
     // Center image (featured)
     if (position === 1)
       return {
         ...baseStyle,
-        width: "20rem",
-        height: "36rem",
-        left: "calc(50% - 10rem)", // Center position
+        width: "16rem", // Reduced from 20rem
+        height: "28rem", // Reduced from 36rem
+        left: "calc(50% - 8rem)",
         zIndex: 2,
         scale: 1,
         opacity: 1,
@@ -58,17 +64,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     // Right image
     return {
       ...baseStyle,
-      width: "16rem",
-      height: "32rem",
-      left: "calc(50% + 8rem)", // Position relative to center
+      width: "12rem", // Reduced size
+      height: "24rem", // Reduced size
+      left: "calc(50% + 6rem)",
       zIndex: 0,
-      scale: 0.85,
-      opacity: 0.7,
+      scale: 0.8,
+      opacity: 0.6,
     };
   };
 
   return (
-    <div className="hero-section flex relative flex-col pb-64 w-full min-h-[1080px] max-md:pb-24 max-md:max-w-full">
+    <div className="hero-section flex relative flex-col pb-32 w-full min-h-[800px] max-md:pb-24 max-md:max-w-full">
+    {/* Reduced height */}
       <div className="hero-background-image absolute inset-0">
         <Image
           src={background}
@@ -109,34 +116,44 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
 
           <div className="hero-image-container flex flex-col ml-5 w-[56%] max-md:ml-0 max-md:w-full">
-            <div className="hero-image-wrapper relative h-[40rem] max-md:mt-10 max-md:max-w-full">
+            <div className="hero-image-wrapper relative h-[32rem] max-md:mt-10 max-md:max-w-full"> {/* Reduced height */}
               <div className="absolute inset-0">
                 <AnimatePresence mode="wait">
-                  {images.map((image, index) => (
-                    <motion.div
-                      key={`${image.src}-${index}`}
-                      className="absolute rounded-2xl overflow-hidden shadow-2xl"
-                      style={getImageStyle(index)}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{
-                        opacity: getImageStyle(index).opacity,
-                        scale: getImageStyle(index).scale,
-                      }}
-                      transition={{
-                        duration: 0.5,
-                        ease: "easeOut",
-                      }}
-                    >
-                      <Image
-                        src={image.src}
-                        alt={image.alt}
-                        fill
-                        className="object-cover"
-                        priority={index === currentIndex}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      />
-                    </motion.div>
-                  ))}
+                  {images.map((image, index) => {
+                    // Only render if image is loaded or is adjacent to current
+                    const shouldRender = imagesLoaded.has(index) ||
+                      Math.abs((index - currentIndex + images.length) % images.length) <= 1;
+
+                    if (!shouldRender) return null;
+
+                    return (
+                      <motion.div
+                        key={`${image.src}-${index}`}
+                        className="absolute rounded-2xl overflow-hidden shadow-2xl"
+                        style={getImageStyle(index)}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{
+                          opacity: getImageStyle(index).opacity,
+                          scale: getImageStyle(index).scale,
+                        }}
+                        transition={{
+                          duration: 0.8, // Slower transition
+                          ease: "easeOut",
+                        }}
+                      >
+                        <Image
+                          src={image.src}
+                          alt={image.alt}
+                          fill
+                          className="object-cover"
+                          priority={index === currentIndex}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          loading={index === currentIndex ? "eager" : "lazy"}
+                          quality={85} // Reduced quality for better performance
+                        />
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             </div>
