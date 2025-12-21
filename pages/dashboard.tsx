@@ -219,7 +219,11 @@ const Dashboard = () => {
     };
 
     const handleEntryClick = (entry: JournalEntry) => {
-        setSelectedEntry(entry);
+        if (selectedEntry?._id === entry._id) {
+            setSelectedEntry(null);
+        } else {
+            setSelectedEntry(entry);
+        }
         setIsWriting(false);
     };
 
@@ -515,7 +519,7 @@ const Dashboard = () => {
                         ease: "linear"
                     }}
                 >
-                    {!isWriting && (
+                    {!isWriting && !selectedEntry && (
                         <>
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
                             <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm">
@@ -671,6 +675,13 @@ const Dashboard = () => {
                                                         })}
                                                     </span>
                                                 </div>
+                                                <button
+                                                    onClick={() => setSelectedEntry(null)}
+                                                    className="p-2 text-gray-400 dark:text-gray-300 hover:text-gray-600 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all duration-200 ml-4"
+                                                    title="Close entry view"
+                                                >
+                                                    ✕
+                                                </button>
                                             </div>
                                         )}
                                     </div>
