@@ -22,6 +22,12 @@ export const DashboardNav: React.FC = () => {
       <div className="flex justify-between items-center px-6 py-4">
         <div className="flex items-center">
           <Logo linkTo="/" />
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="ml-6 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:text-healing-600 dark:hover:text-healing-400 transition-colors duration-200"
+          >
+            Dashboard
+          </button>
         </div>
         
         <div className="flex items-center space-x-4">
