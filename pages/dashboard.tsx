@@ -4,6 +4,7 @@ import withAuth from "./utils/withAuth";
 import { DashboardNav } from "./components/DashboardNav";
 import { JournalForm } from "./components/journal/JournalForm";
 import { JournalEntriesList } from "./components/journal/JournalEntriesList";
+import MoodHeatmap from "./components/journal/MoodHeatmap";
 import { motion, AnimatePresence } from "framer-motion";
 import Cookies from 'js-cookie';
 import { generateTitle } from "@/services/gemini";
@@ -11,6 +12,7 @@ import { fetchWithAuth } from '../lib/apiClient';
 import DeleteConfirmationModal from './components/modals/DeleteConfirmationModal';
 import { DEFAULT_MOOD, MOOD_LOOKUP, MoodOption, MoodValue } from "@/lib/mood";
 import { formatDistanceToNow } from "date-fns";
+import { summarizeDailyMoods } from "@/lib/journalStats";
 
 interface JournalEntry {
     _id: string;
@@ -171,6 +173,8 @@ const Dashboard = () => {
             topMoods
         };
     }, [entries]);
+
+    const dailyMoodSummary = useMemo(() => summarizeDailyMoods(entries), [entries]);
 
     // Add media query effect to collapse sidebar on small screens
     useEffect(() => {
@@ -512,6 +516,7 @@ const Dashboard = () => {
                     }}
                 >
                     {!isWriting && (
+                        <>
                         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
                             <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm">
                                 <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Writing streak</p>
@@ -564,6 +569,10 @@ const Dashboard = () => {
                                 )}
                             </div>
                         </div>
+                        <div className="mb-6">
+                            <MoodHeatmap summary={dailyMoodSummary} />
+                        </div>
+                        </>
                     )}
                     <AnimatePresence mode="wait">
                         {isWriting ? (
