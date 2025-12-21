@@ -736,11 +736,11 @@ const Dashboard = () => {
                                     ease: "linear"
                                 }}
                             >
-                                <div className="text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-12 rounded-2xl shadow-lg" onClick={() => setIsWriting(true)}>
+                                {/* <div className="text-center text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-800 p-12 rounded-2xl shadow-lg" onClick={() => setIsWriting(true)}>
                                     <span className="text-5xl mb-6 block">📝</span>
                                     <p className="text-xl font-medium text-gray-700 dark:text-gray-200">Select an entry or start writing</p>
                                     <p className="text-sm mt-3 text-gray-500 dark:text-gray-400">Your thoughts matter</p>
-                                </div>
+                                </div> */}
                             </motion.div>
                         )}
                     </AnimatePresence>
