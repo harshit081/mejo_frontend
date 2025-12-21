@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/router";
 import withAuth from "./utils/withAuth";
 import { DashboardNav } from "./components/DashboardNav";
@@ -9,6 +9,8 @@ import Cookies from 'js-cookie';
 import { generateTitle } from "@/services/gemini";
 import { fetchWithAuth } from '../lib/apiClient';
 import DeleteConfirmationModal from './components/modals/DeleteConfirmationModal';
+import { DEFAULT_MOOD, MOOD_LOOKUP, MoodOption, MoodValue } from "@/lib/mood";
+import { formatDistanceToNow } from "date-fns";
 
 interface JournalEntry {
     _id: string;
@@ -16,7 +18,37 @@ interface JournalEntry {
     title: string;
     createdAt: string;
     tags?: string[];
+    mood?: MoodValue;
 }
+
+type MoodStat = MoodOption & { count: number };
+
+const countWords = (text: string) => {
+    const normalized = text.trim();
+    if (!normalized) return 0;
+    return normalized.split(/\s+/).length;
+};
+
+const calculateWritingStreak = (entries: JournalEntry[]) => {
+    if (!entries.length) return 0;
+
+    const uniqueDays = new Set(
+        entries.map(entry => new Date(entry.createdAt).toDateString())
+    );
+
+    let streak = 0;
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+
+    while (uniqueDays.has(cursor.toDateString())) {
+        streak += 1;
+        cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return streak;
+};
+
+const getMoodMeta = (mood?: MoodValue) => MOOD_LOOKUP[mood ?? DEFAULT_MOOD];
 
 // Helper function to group entries by time period
 const groupEntriesByTimePeriod = (entries: JournalEntry[]) => {
@@ -81,6 +113,64 @@ const Dashboard = () => {
     const [menuOpenEntryId, setMenuOpenEntryId] = useState<string | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
+    const selectedMoodMeta = selectedEntry ? getMoodMeta(selectedEntry.mood) : null;
+    const selectedEntryWordCount = selectedEntry ? countWords(selectedEntry.content) : 0;
+    const selectedEntryReadMinutes = selectedEntryWordCount ? Math.max(1, Math.round(selectedEntryWordCount / 180)) : 0;
+    const selectedEntryRelativeTime = selectedEntry
+        ? formatDistanceToNow(new Date(selectedEntry.createdAt), { addSuffix: true })
+        : "";
+    const insightPillClass = "inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold rounded-full border border-gray-200 dark:border-gray-600";
+
+    const entryStats = useMemo(() => {
+        if (!entries.length) {
+            return {
+                writingStreak: 0,
+                entriesThisWeek: 0,
+                avgWords: 0,
+                totalWords: 0,
+                lastEntryDistance: "Start your first entry",
+                topMoods: [] as MoodStat[]
+            };
+        }
+
+        const now = new Date();
+        const totalWords = entries.reduce((sum, entry) => sum + countWords(entry.content), 0);
+        const entriesThisWeek = entries.filter(entry => {
+            const diffMs = now.getTime() - new Date(entry.createdAt).getTime();
+            return diffMs <= 6 * 24 * 60 * 60 * 1000;
+        }).length;
+        const writingStreak = calculateWritingStreak(entries);
+        const avgWords = Math.round(totalWords / entries.length);
+
+        const moodCounts = entries.reduce((acc, entry) => {
+            const key = entry.mood ?? DEFAULT_MOOD;
+            acc[key] = (acc[key] || 0) + 1;
+            return acc;
+        }, {} as Record<MoodValue, number>);
+
+        const topMoods: MoodStat[] = Object.entries(moodCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([key, count]) => ({
+                ...MOOD_LOOKUP[key as MoodValue],
+                count
+            }));
+
+        const newestEntry = entries.reduce((latest, entry) => {
+            return new Date(entry.createdAt) > new Date(latest.createdAt) ? entry : latest;
+        }, entries[0]);
+
+        const lastEntryDistance = formatDistanceToNow(new Date(newestEntry.createdAt), { addSuffix: true });
+
+        return {
+            writingStreak,
+            entriesThisWeek,
+            avgWords,
+            totalWords,
+            lastEntryDistance,
+            topMoods
+        };
+    }, [entries]);
 
     // Add media query effect to collapse sidebar on small screens
     useEffect(() => {
@@ -150,7 +240,8 @@ const Dashboard = () => {
                 body: JSON.stringify({
                     title: updatedTitle,
                     content: selectedEntry.content,
-                    tags: selectedEntry.tags || []
+                    tags: selectedEntry.tags || [],
+                    mood: selectedEntry.mood || DEFAULT_MOOD
                 })
             });
 
@@ -200,7 +291,8 @@ const Dashboard = () => {
                 body: JSON.stringify({
                     title: selectedEntry.title,
                     content: editedContent,
-                    tags: selectedEntry.tags || []
+                    tags: selectedEntry.tags || [],
+                    mood: selectedEntry.mood || DEFAULT_MOOD
                 })
             });
 
@@ -419,6 +511,60 @@ const Dashboard = () => {
                         ease: "linear"
                     }}
                 >
+                    {!isWriting && (
+                        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
+                            <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm">
+                                <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Writing streak</p>
+                                <p className="text-3xl font-bold text-healing-600 dark:text-healing-200">
+                                    {entryStats.writingStreak} <span className="text-base font-medium text-gray-500 dark:text-gray-400">days</span>
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Last entry {entryStats.lastEntryDistance}</p>
+                            </div>
+                            <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm">
+                                <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">This week</p>
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-3xl font-bold text-healing-600 dark:text-healing-200">{entryStats.entriesThisWeek}</p>
+                                    <span className="text-base text-gray-500 dark:text-gray-400">entries</span>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Avg {entryStats.avgWords} words / entry</p>
+                            </div>
+                            <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm">
+                                <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Lifetime words</p>
+                                <p className="text-3xl font-bold text-healing-600 dark:text-healing-200">
+                                    {entryStats.totalWords.toLocaleString()}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">Across {entries.length} entries</p>
+                            </div>
+                            <div className="bg-white/70 dark:bg-gray-800/70 rounded-2xl p-5 border border-white/40 dark:border-gray-700 shadow-sm md:col-span-2 xl:col-span-2">
+                                <p className="text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Mood highlights</p>
+                                {entryStats.topMoods.length === 0 ? (
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Log a few entries to see your mood trends.</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {entryStats.topMoods.map((mood) => {
+                                            const percentage = entries.length ? Math.round((mood.count / entries.length) * 100) : 0;
+                                            return (
+                                                <div key={mood.value}>
+                                                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300 mb-1">
+                                                        <span className="font-semibold">
+                                                            {mood.emoji} {mood.label}
+                                                        </span>
+                                                        <span>{mood.count} · {percentage}%</span>
+                                                    </div>
+                                                    <div className="h-2 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                                        <div
+                                                            className="h-full rounded-full bg-healing-400"
+                                                            style={{ width: `${percentage}%` }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                     <AnimatePresence mode="wait">
                         {isWriting ? (
                             <motion.div 
@@ -519,6 +665,22 @@ const Dashboard = () => {
                                             </div>
                                         )}
                                     </div>
+                                    {selectedMoodMeta && (
+                                        <div className="flex flex-wrap gap-3 mb-6">
+                                            <span className={`${selectedMoodMeta.badge} ${insightPillClass}`}>
+                                                {selectedMoodMeta.emoji} {selectedMoodMeta.label}
+                                            </span>
+                                            <span className={`${insightPillClass} bg-white/80 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200`}>
+                                                📝 {selectedEntryWordCount} words
+                                            </span>
+                                            <span className={`${insightPillClass} bg-white/80 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200`}>
+                                                ⏱️ {selectedEntryReadMinutes} min read
+                                            </span>
+                                            <span className={`${insightPillClass} bg-white/80 dark:bg-gray-700/70 text-gray-700 dark:text-gray-200`}>
+                                                ⏳ Logged {selectedEntryRelativeTime}
+                                            </span>
+                                        </div>
+                                    )}
                                     <div className="min-h-[60vh] lg:min-h-[65vh]">
                                       {isContentEditing ? (
                                         <div className="space-y-4">

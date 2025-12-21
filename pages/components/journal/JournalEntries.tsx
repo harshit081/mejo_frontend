@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
 import { format } from "date-fns";
+import { DEFAULT_MOOD, MOOD_LOOKUP, MoodValue } from "@/lib/mood";
 
 interface JournalEntry {
     id: string;
     content: string;
     title: string;
     createdAt: string;
+    mood?: MoodValue;
 }
 
 interface JournalEntriesProps {
@@ -37,6 +39,8 @@ export const JournalEntries: React.FC<JournalEntriesProps> = ({ entries }) => {
 };
 
 const JournalEntry: React.FC<{ entry: JournalEntry }> = ({ entry }) => {
+    const moodKey = entry.mood ?? DEFAULT_MOOD;
+    const moodMeta = MOOD_LOOKUP[moodKey];
     return (
         <motion.div
             className="p-6 bg-white rounded-xl shadow-sm hover:shadow-md transition-all"
@@ -54,6 +58,9 @@ const JournalEntry: React.FC<{ entry: JournalEntry }> = ({ entry }) => {
                 <p className="text-gray-600 line-clamp-2 font-['Mansalva']">
                     {entry.content}
                 </p>
+                <span className={`inline-flex text-xs px-3 py-1 rounded-full font-semibold ${moodMeta.badge}`}>
+                    {moodMeta.emoji} {moodMeta.label}
+                </span>
             </div>
         </motion.div>
     );

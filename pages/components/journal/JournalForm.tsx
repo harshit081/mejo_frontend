@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { generateTitle } from "../../../services/gemini";
 import Cookies from 'js-cookie';
+import { DEFAULT_MOOD, MOOD_OPTIONS, MoodValue } from "@/lib/mood";
 
 interface JournalFormProps {
     onEntryAdded: () => void;
@@ -11,6 +12,7 @@ interface JournalFormProps {
         content: string;
         title: string;
         tags?: string[];
+        mood?: MoodValue;
     };
     isEditing?: boolean;
 }
@@ -24,15 +26,18 @@ export const JournalForm: React.FC<JournalFormProps> = ({
     const [journalText, setJournalText] = useState("");
     const [journalTitle, setJournalTitle] = useState("");
     const [loading, setLoading] = useState(false);
+    const [selectedMood, setSelectedMood] = useState(DEFAULT_MOOD);
     
     // Set initial content if editing
     useEffect(() => {
         if (initialEntry) {
             setJournalText(initialEntry.content);
             setJournalTitle(initialEntry.title);
+            setSelectedMood(initialEntry.mood || DEFAULT_MOOD);
         } else {
             setJournalText("");
             setJournalTitle("");
+            setSelectedMood(DEFAULT_MOOD);
         }
     }, [initialEntry]);
 
@@ -54,7 +59,8 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                     body: JSON.stringify({
                         content: journalText,
                         title: resolvedTitle,
-                        tags: initialEntry.tags || ["journal"]
+                        tags: initialEntry.tags || ["journal"],
+                        mood: selectedMood
                     })
                 });
 
@@ -70,7 +76,8 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                     body: JSON.stringify({
                         content: journalText,
                         title: resolvedTitle,
-                        tags: ["journal"]
+                        tags: ["journal"],
+                        mood: selectedMood
                     })
                 });
 
@@ -112,6 +119,28 @@ export const JournalForm: React.FC<JournalFormProps> = ({
                         focus:ring-2 focus:ring-healing-300 focus:border-healing-500"
                         disabled={loading}
                     />
+                    <div className="space-y-3">
+                        <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wide">
+                            How are you feeling?
+                        </p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            {MOOD_OPTIONS.map((option) => {
+                                const isActive = selectedMood === option.value;
+                                return (
+                                    <button
+                                        key={option.value}
+                                        type="button"
+                                        className={`flex flex-col items-center justify-center rounded-xl border px-3 py-3 text-sm font-medium transition-all duration-150 hover:scale-[1.02] ${option.accent} ${isActive ? 'ring-2 ring-offset-2 ring-healing-400 dark:ring-offset-gray-800' : 'opacity-80'}`}
+                                        onClick={() => setSelectedMood(option.value)}
+                                        aria-pressed={isActive}
+                                    >
+                                        <span className="text-2xl mb-1">{option.emoji}</span>
+                                        {option.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                     <textarea
                         value={journalText}
                         onChange={(e) => setJournalText(e.target.value)}
