@@ -748,7 +748,7 @@ const Dashboard = () => {
                             </motion.div>
                         ) : (
                             <motion.div 
-                                className="flex-1 flex items-center justify-center h-[calc(50vh-120px)]"
+                                className="flex-1 flex items-center justify-center"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{
